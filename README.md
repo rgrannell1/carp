@@ -68,7 +68,7 @@ An folder dependency.
 ```json
 {
   "type": "core/folder",
-  "name": "/home/alice/code"
+  "path": "/home/alice/code"
 }
 ```
 
