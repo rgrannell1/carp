@@ -61,17 +61,6 @@ An apt-package dependency.
 }
 ```
 
-### "core/apt"
-
-An apt-package dependency.
-
-```json
-{
-  "type": "core/apt",
-  "name": "git"
-}
-```
-
 ### "core/folder"
 
 An folder dependency.
