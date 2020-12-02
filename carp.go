@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"sync"
 
 	"github.com/docopt/docopt-go"
 )
@@ -54,7 +56,7 @@ type SnapDependency struct {
 
 // Group defines a logically coherant group of dependencies
 type Group struct {
-	requires []interface{}
+	Requires []interface{} `json:"requires"`
 }
 
 func readCarpFile(fpath string) (map[string]Group, error) {
@@ -72,6 +74,57 @@ func readCarpFile(fpath string) (map[string]Group, error) {
 	return result, nil
 }
 
+type GroupResult struct {
+	Met bool
+}
+
+// DependencyResult s
+type DependencyResult struct {
+	Met bool
+}
+
+type Identified interface {
+	Id() string
+}
+
+func Id(interface{}) {
+	return ""
+}
+
+func TestDependency(tgt Identified) DependencyResult {
+
+	switch os := Id(tgt); os {
+	case "core/carpgroup":
+		fmt.Println("OS X.")
+	default:
+		fmt.Printf("%s.\n", os)
+	}
+
+	return DependencyResult{
+		Met: true,
+	}
+}
+
+func TestGroup(tgt Group) chan DependencyResult {
+	requiresMet := make(chan DependencyResult)
+
+	if len(tgt.Requires) == 0 {
+		return requiresMet
+	}
+
+	var wg sync.WaitGroup
+	wg.Add(len(tgt.Requires))
+
+	for _, val := range tgt.Requires {
+		go func(val interface{}) {
+			defer wg.Done()
+			requiresMet <- TestDependency(val)
+		}(val)
+	}
+
+	return requiresMet
+}
+
 func carp(args CarpArgs) error {
 	carpfile, err := readCarpFile(args.fpath)
 
@@ -80,6 +133,10 @@ func carp(args CarpArgs) error {
 	}
 
 	// resolve all dependencies
+
+	tgt := carpfile[args.group]
+
+	TestGroup(tgt)
 
 	return nil
 }

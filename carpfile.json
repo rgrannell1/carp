@@ -1,5 +1,10 @@
 {
   "main": {
-    "requires": []
+    "requires": [
+      {
+        "id": "core/file",
+        "path": "/home/rg/.zshrc"
+      }
+    ]
   }
 }
