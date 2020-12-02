@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -17,46 +16,12 @@ type CarpArgs struct {
 	group string
 }
 
-// FileDependency specifies CLI arguments
-type FileDependency struct {
-	id   string
-	path string
-}
-
-// AptDependency specifies CLI arguments
-type AptDependency struct {
-	id   string
-	name string
-}
-
-// FolderDependency specifies CLI argument
-type FolderDependency struct {
-	id   string
-	path string
-}
-
-// EnvVarDependency specifies CLI arguments
-type EnvVarDependency struct {
-	id    string
-	name  string
-	value string
-}
-
-// CarpGroupDependency specifies CLI arguments
-type CarpGroupDependency struct {
-	id   string
-	name string
-}
-
-// SnapDependency specifies CLI arguments
-type SnapDependency struct {
-	id   string
-	name string
-}
+// Dependency is a map specifying dependency data
+type Dependency map[string]string
 
 // Group defines a logically coherant group of dependencies
 type Group struct {
-	Requires []interface{} `json:"requires"`
+	Requires []Dependency `json:"requires"`
 }
 
 func readCarpFile(fpath string) (map[string]Group, error) {
@@ -74,37 +39,22 @@ func readCarpFile(fpath string) (map[string]Group, error) {
 	return result, nil
 }
 
-type GroupResult struct {
-	Met bool
-}
-
 // DependencyResult s
 type DependencyResult struct {
 	Met bool
 }
 
-type Identified interface {
-	Id() string
-}
-
-func Id(interface{}) {
-	return ""
-}
-
-func TestDependency(tgt Identified) DependencyResult {
-
-	switch os := Id(tgt); os {
-	case "core/carpgroup":
-		fmt.Println("OS X.")
+// TestDependency checks one dependency (or a carp-group) resolves as expected
+func TestDependency(tgt Dependency) DependencyResult {
+	switch id := tgt["id"]; {
+	case id == "core/carpgroup":
+		return DependencyResult{Met: false}
 	default:
-		fmt.Printf("%s.\n", os)
-	}
-
-	return DependencyResult{
-		Met: true,
+		return DependencyResult{Met: false}
 	}
 }
 
+// TestGroup checks a groups subdependencies in parallel
 func TestGroup(tgt Group) chan DependencyResult {
 	requiresMet := make(chan DependencyResult)
 
@@ -116,7 +66,7 @@ func TestGroup(tgt Group) chan DependencyResult {
 	wg.Add(len(tgt.Requires))
 
 	for _, val := range tgt.Requires {
-		go func(val interface{}) {
+		go func(val Dependency) {
 			defer wg.Done()
 			requiresMet <- TestDependency(val)
 		}(val)
