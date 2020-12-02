@@ -3,18 +3,9 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"os"
 	"sync"
-
-	"github.com/docopt/docopt-go"
 )
-
-// CarpArgs specifies CLI arguments
-type CarpArgs struct {
-	fpath string
-	group string
-}
 
 // Dependency is a map specifying dependency data
 type Dependency map[string]string
@@ -44,57 +35,21 @@ type DependencyResult struct {
 	Met bool
 }
 
-// TestFileDependency checks a file exists
-func TestFileDependency(tgt Dependency) DependencyResult {
-	if tgt["path"] == "" {
-		return DependencyResult{Met: false}
-	}
-
-	info, err := os.Stat(tgt["path"])
-	if os.IsNotExist(err) {
-		return DependencyResult{Met: false}
-	}
-	if info.IsDir() {
-		return DependencyResult{Met: false}
-
-	}
-	return DependencyResult{Met: true}
-}
-
-// TestEnvVarDependency checks an environmental variable exists
-func TestEnvVarDependency(tgt Dependency) DependencyResult {
-	if tgt["name"] == "" {
-		return DependencyResult{Met: false}
-	}
-
-	val, present := os.LookupEnv(tgt["name"])
-
-	if !present {
-		return DependencyResult{Met: false}
-	}
-
-	if tgt["value"] != "" && val != tgt["value"] {
-		return DependencyResult{Met: false}
-	}
-
-	return DependencyResult{Met: true}
-}
-
 // TestDependency checks one dependency (or a carp-group) resolves as expected
 func TestDependency(tgt Dependency) DependencyResult {
 	switch id := tgt["id"]; {
 	case id == "core/file":
 		return TestFileDependency(tgt)
 	case id == "core/apt":
-		return TestEnvVarDependency(tgt)
+		return TestAptDependency(tgt)
 	case id == "core/folder":
-		return TestEnvVarDependency(tgt)
+		return TestFolderDependency(tgt)
 	case id == "core/envvar":
 		return TestEnvVarDependency(tgt)
 	case id == "core/carpgroup":
 		return DependencyResult{Met: false}
 	case id == "core/snap":
-		return DependencyResult{Met: false}
+		return TestSnapDependency(tgt)
 	default:
 		return DependencyResult{Met: false}
 	}
@@ -133,34 +88,4 @@ func carp(args CarpArgs) error {
 	TestGroup(tgt)
 
 	return nil
-}
-
-func main() {
-	usage := `Carp
-Usage:
-	carp --file <path> --group <name>
-
-Options:
-	--group <name> the group to test [default: main]
-`
-
-	opts, _ := docopt.ParseDoc(usage)
-
-	file, err := opts.String("<path>")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	group, err := opts.String("--group")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	carpErr := carp(CarpArgs{file, group})
-
-	if carpErr != nil {
-		log.Fatal(carpErr)
-	}
 }
