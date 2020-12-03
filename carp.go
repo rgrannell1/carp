@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strings"
 	"sync"
 
 	"github.com/mgutz/ansi"
@@ -65,7 +66,7 @@ func readCarpFile(fpath string) (map[string]Group, error) {
 // DependencyResult s
 type DependencyResult struct {
 	Met    bool
-	Reason string
+	Reason []string
 }
 
 // TestDependency checks one dependency (or a carp-group) resolves as expected
@@ -86,12 +87,12 @@ func TestDependency(carpfile map[string]Group, tgt Dependency) DependencyResult 
 	default:
 		return DependencyResult{
 			Met:    false,
-			Reason: "invalid dependency.",
+			Reason: []string{"invalid dependency."},
 		}
 	}
 }
 
-func epp(res DependencyResult) string {
+func statusLabel(res DependencyResult) string {
 	if res.Met {
 		//return "[MET]"
 		return ansi.Color("[MET]", "green")
@@ -100,16 +101,16 @@ func epp(res DependencyResult) string {
 	}
 }
 
-func summariseResult(requiresStatus chan DependencyResult) (bool, string) {
+func summariseResult(requiresStatus chan DependencyResult) (bool, []string) {
 	allMet := true
 	message := ""
 
 	for elem := range requiresStatus {
 		allMet = allMet && elem.Met
-		message = message + epp(elem) + " " + elem.Reason + "\n"
+		message = message + statusLabel(elem) + " " + strings.Join(elem.Reason, "\n") + "\n"
 	}
 
-	return allMet, message
+	return allMet, []string{message}
 }
 
 // TestGroup checks a groups subdependencies in parallel
@@ -119,7 +120,7 @@ func TestGroup(carpfile map[string]Group, deps []Dependency) DependencyResult {
 	if len(deps) == 0 {
 		return DependencyResult{
 			Met:    true,
-			Reason: "no dependencies provided.",
+			Reason: []string{"no dependencies provided."},
 		}
 	}
 
@@ -135,8 +136,6 @@ func TestGroup(carpfile map[string]Group, deps []Dependency) DependencyResult {
 
 	wg.Wait()
 	close(requiresStatus)
-
-	// TODO read and summarise subdependencies.
 
 	allMet, summary := summariseResult(requiresStatus)
 

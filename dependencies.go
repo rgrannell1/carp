@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"strings"
 )
 
 // TestFileDependency checks a file exists
@@ -10,7 +9,7 @@ func TestFileDependency(tgt Dependency) DependencyResult {
 	if tgt["path"] == "" {
 		return DependencyResult{
 			Met:    false,
-			Reason: "path not provided",
+			Reason: []string{"path not provided"},
 		}
 	}
 
@@ -18,19 +17,19 @@ func TestFileDependency(tgt Dependency) DependencyResult {
 	if os.IsNotExist(err) {
 		return DependencyResult{
 			Met:    false,
-			Reason: tgt["path"] + " does not exist",
+			Reason: []string{tgt["path"] + " does not exist"},
 		}
 	}
 	if info.IsDir() {
 		return DependencyResult{
 			Met:    false,
-			Reason: tgt["path"] + " is a folder, not a regular file",
+			Reason: []string{tgt["path"] + " is a folder, not a regular file"},
 		}
 
 	}
 	return DependencyResult{
 		Met:    true,
-		Reason: "file " + tgt["path"] + " exists",
+		Reason: []string{"file " + tgt["path"] + " exists"},
 	}
 }
 
@@ -39,7 +38,7 @@ func TestEnvVarDependency(tgt Dependency) DependencyResult {
 	if tgt["name"] == "" {
 		return DependencyResult{
 			Met:    false,
-			Reason: "environmental variable name not provided",
+			Reason: []string{"environmental variable name not provided"},
 		}
 	}
 
@@ -48,30 +47,31 @@ func TestEnvVarDependency(tgt Dependency) DependencyResult {
 	if !present {
 		return DependencyResult{
 			Met:    false,
-			Reason: tgt["name"] + " does not exist",
+			Reason: []string{tgt["name"] + " does not exist"},
 		}
 	}
 
 	if tgt["value"] != "" && val != tgt["value"] {
 		return DependencyResult{
 			Met:    false,
-			Reason: "environmental value " + tgt["name"] + " \"" + val + "\" does not match " + tgt["value"],
+			Reason: []string{"environmental value " + tgt["name"] + " \"" + val + "\" does not match " + tgt["value"]},
 		}
 	}
 
 	return DependencyResult{
 		Met:    true,
-		Reason: "environmental variable " + tgt["name"] + " as expected.",
+		Reason: []string{"environmental variable " + tgt["name"] + " as expected."},
 	}
 }
 
-func indent(content string) string {
-	message := ""
-	for _, key := range strings.Split(content, "\n") {
-		message = message + "  " + key + "\n"
+func indent(content []string) []string {
+	indented := []string{}
+
+	for _, key := range content {
+		indented = append(indented, "  "+key)
 	}
 
-	return message
+	return indented
 }
 
 // TestCarpGroupDependency checks
@@ -79,7 +79,7 @@ func TestCarpGroupDependency(carpfile map[string]Group, tgt Dependency) Dependen
 	if tgt["name"] == "" {
 		return DependencyResult{
 			Met:    false,
-			Reason: "group name not provided",
+			Reason: []string{"group name not provided"},
 		}
 	}
 
@@ -89,7 +89,7 @@ func TestCarpGroupDependency(carpfile map[string]Group, tgt Dependency) Dependen
 
 	return DependencyResult{
 		Met:    depResult.Met,
-		Reason: "\n" + indent(depResult.Reason),
+		Reason: indent(depResult.Reason),
 	}
 }
 
