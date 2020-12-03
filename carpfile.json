@@ -1,9 +1,29 @@
 {
+  "vars": {
+    "requires": [
+      {
+        "id": "core/envvar",
+        "name": "SHELL"
+      },
+      {
+        "id": "core/envvar",
+        "name": "SHELL"
+      }
+    ]
+  },
   "main": {
     "requires": [
       {
         "id": "core/file",
         "path": "/home/rg/.zshrc"
+      },
+      {
+        "id": "core/file",
+        "path": "/home/rg/foo"
+      },
+      {
+        "id": "core/carpgroup",
+        "name": "vars"
       }
     ]
   }

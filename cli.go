@@ -22,7 +22,6 @@ Options:
 `
 
 	opts, _ := docopt.ParseDoc(usage)
-
 	file, err := opts.String("<path>")
 
 	if err != nil {
@@ -35,7 +34,7 @@ Options:
 		log.Fatal(err)
 	}
 
-	carpErr := carp(CarpArgs{file, group})
+	carpErr := Carp(CarpArgs{file, group})
 
 	if carpErr != nil {
 		log.Fatal(carpErr)
