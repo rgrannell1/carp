@@ -34,19 +34,18 @@ func readCarpFile(fpath string) (map[string]Group, error) {
 
 	mode := fileInfo.Mode()
 
+	var byteValue []byte
+
 	if IsExecAny(mode) {
 		cmd := exec.Command(fpath)
-		byteValue, err := cmd.Output()
-		fmt.Println(cmd.Stdout)
-
+		cmdOutput, err := cmd.Output()
 		if err != nil {
 			return nil, err
 		}
+		byteValue = cmdOutput
 
-		var result map[string]Group
-		json.Unmarshal([]byte(byteValue), &result)
+		fmt.Println(cmd.Stdout)
 
-		return result, nil
 	} else {
 		jsonFile, err := os.Open(fpath)
 		if err != nil {
@@ -54,13 +53,14 @@ func readCarpFile(fpath string) (map[string]Group, error) {
 		}
 		defer jsonFile.Close()
 
-		byteValue, _ := ioutil.ReadAll(jsonFile)
-
-		var result map[string]Group
-		json.Unmarshal([]byte(byteValue), &result)
-
-		return result, nil
+		readInput, _ := ioutil.ReadAll(jsonFile)
+		byteValue = readInput
 	}
+
+	var result map[string]Group
+	json.Unmarshal([]byte(byteValue), &result)
+
+	return result, nil
 }
 
 // DependencyResult s
@@ -96,9 +96,9 @@ func statusLabel(res DependencyResult) string {
 	if res.Met {
 		//return "[MET]"
 		return ansi.Color("[MET]", "green")
-	} else {
-		return ansi.Color("[FAILED]", "red")
 	}
+
+	return ansi.Color("[FAILED]", "red")
 }
 
 func summariseResult(requiresStatus chan DependencyResult) (bool, []string) {
@@ -158,6 +158,12 @@ func Carp(args CarpArgs) error {
 	groupResult := TestGroup(carpfile, tgt.Requires)
 
 	fmt.Println(groupResult.Reason)
+
+	if groupResult.Met == false {
+		os.Exit(1)
+	} else {
+		os.Exit(0)
+	}
 
 	return nil
 }
