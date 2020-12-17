@@ -95,23 +95,48 @@ func TestDependency(carpfile map[string]Group, tgt Dependency) DependencyResult 
 
 func statusLabel(res DependencyResult) string {
 	if res.Met {
-		//return "[MET]"
 		return ansi.Color("[MET]", "green")
 	}
 
 	return ansi.Color("[FAILED]", "red")
 }
 
+func Indent(content string, count int) string {
+	lines := strings.Split(content, "\n")
+	padded := make([]string, len(lines))
+
+	for ith, line := range lines {
+		padded[ith] = strings.Repeat(" ", count) + line
+	}
+
+	return strings.Join(padded, "\n")
+}
+
+func IndentList(lines []string, count int) []string {
+	padded := make([]string, len(lines))
+
+	for ith, line := range lines {
+		padded[ith] = strings.Repeat(" ", count) + line
+	}
+
+	return padded
+}
+
 func summariseResult(requiresStatus chan DependencyResult) (bool, []string) {
 	allMet := true
-	message := ""
+	message := []string{}
 
 	for elem := range requiresStatus {
 		allMet = allMet && elem.Met
-		message = message + statusLabel(elem) + " " + strings.Join(elem.Reason, "\n") + "\n"
+
+		dependencySummary := statusLabel(elem) + " " + strings.Join(elem.Reason, "\n")
+
+		message = append(message, dependencySummary)
 	}
 
-	return allMet, []string{message}
+	padded := Indent("\n"+strings.Join(message, "\n"), 2)
+
+	return allMet, []string{padded}
 }
 
 // TestGroup checks a groups subdependencies in parallel
@@ -158,7 +183,7 @@ func Carp(args CarpArgs) error {
 
 	groupResult := TestGroup(carpfile, tgt.Requires)
 
-	fmt.Println(groupResult.Reason)
+	fmt.Println(groupResult.Reason[0])
 
 	if groupResult.Met == false {
 		os.Exit(1)

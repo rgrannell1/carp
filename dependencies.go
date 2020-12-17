@@ -67,16 +67,6 @@ func TestEnvVarDependency(tgt Dependency) DependencyResult {
 	}
 }
 
-func indent(content []string) []string {
-	indented := []string{}
-
-	for _, key := range content {
-		indented = append(indented, "  "+key)
-	}
-
-	return indented
-}
-
 // TestCarpGroupDependency checks
 func TestCarpGroupDependency(carpfile map[string]Group, tgt Dependency) DependencyResult {
 	if tgt["name"] == "" {
@@ -92,23 +82,32 @@ func TestCarpGroupDependency(carpfile map[string]Group, tgt Dependency) Dependen
 
 	return DependencyResult{
 		Met:    depResult.Met,
-		Reason: indent(depResult.Reason),
+		Reason: IndentList(depResult.Reason, 2),
 	}
 }
 
 // TestAptDependency checks
 func TestAptDependency(tgt Dependency) DependencyResult {
-	return DependencyResult{Met: true}
+	return DependencyResult{
+		Met:    true,
+		Reason: []string{"unimplemented."},
+	}
 }
 
 // TestFolderDependency checks
 func TestFolderDependency(tgt Dependency) DependencyResult {
-	return DependencyResult{Met: true}
+	return DependencyResult{
+		Met:    true,
+		Reason: []string{"unimplemented."},
+	}
 }
 
 // TestSnapDependency checks
 func TestSnapDependency(tgt Dependency) DependencyResult {
-	return DependencyResult{Met: true}
+	return DependencyResult{
+		Met:    true,
+		Reason: []string{"unimplemented."},
+	}
 }
 
 // TestCommand checks
