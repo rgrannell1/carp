@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 	"syscall"
 )
 
@@ -102,11 +104,52 @@ func TestFolderDependency(tgt Dependency) DependencyResult {
 	}
 }
 
+func listSnapPackages() ([]string, error) {
+	cmd := exec.Command("snap", "list")
+	stdout, err := cmd.Output()
+
+	if err != nil {
+		return nil, err
+	}
+
+	output := strings.Split(string(stdout), "\n")
+	installed := []string{}
+
+	for ith, val := range output {
+		if ith > 0 {
+			parts := strings.Split(val, " ")
+			installed = append(installed, parts[0])
+		}
+	}
+
+	return installed, nil
+}
+
 // TestSnapDependency checks
 func TestSnapDependency(tgt Dependency) DependencyResult {
+	packages, err := listSnapPackages()
+
+	if err != nil {
+		return DependencyResult{
+			Met:    false,
+			Reason: []string{"failed to list snap packages."},
+		}
+	}
+
+	for _, name := range packages {
+		if name == tgt["name"] {
+			return DependencyResult{
+				Met:    true,
+				Reason: []string{"snap package \"" + tgt["name"] + "\" installed"},
+			}
+		}
+	}
+
+	fmt.Println(packages)
+
 	return DependencyResult{
 		Met:    true,
-		Reason: []string{"unimplemented."},
+		Reason: []string{tgt["name"] + " not in listed snap-packages"},
 	}
 }
 

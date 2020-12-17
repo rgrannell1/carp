@@ -28,7 +28,7 @@ def depend_folder(path):
 def depend_envvar(name, value):
   return {
     "id": "core/envvar",
-    "name": "SHELL",
+    "name": name,
     "value": value
   }
 
