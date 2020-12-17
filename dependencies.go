@@ -98,9 +98,30 @@ func TestAptDependency(tgt Dependency) DependencyResult {
 
 // TestFolderDependency checks
 func TestFolderDependency(tgt Dependency) DependencyResult {
+	if tgt["path"] == "" {
+		return DependencyResult{
+			Met:    false,
+			Reason: []string{"path not provided"},
+		}
+	}
+
+	info, err := os.Stat(tgt["path"])
+	if os.IsNotExist(err) {
+		return DependencyResult{
+			Met:    false,
+			Reason: []string{tgt["path"] + " does not exist"},
+		}
+	}
+	if !info.IsDir() {
+		return DependencyResult{
+			Met:    false,
+			Reason: []string{tgt["path"] + " is not a folder"},
+		}
+	}
+
 	return DependencyResult{
 		Met:    true,
-		Reason: []string{"unimplemented."},
+		Reason: []string{"folder " + tgt["path"] + " exists"},
 	}
 }
 
