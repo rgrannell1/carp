@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
@@ -25,6 +24,7 @@ func IsExecAny(mode os.FileMode) bool {
 	return mode&0111 != 0
 }
 
+// readCarpFile reads (or executes) a carpfile
 func readCarpFile(fpath string) (map[string]Group, error) {
 	fileInfo, statErr := os.Stat(fpath)
 
@@ -38,27 +38,26 @@ func readCarpFile(fpath string) (map[string]Group, error) {
 
 	if IsExecAny(mode) {
 		cmd := exec.Command(fpath)
-		cmdOutput, err := cmd.Output()
+		stdout, err := cmd.Output()
+
 		if err != nil {
 			return nil, err
 		}
-		byteValue = cmdOutput
 
-		fmt.Println(cmd.Stdout)
-
-	} else {
-		jsonFile, err := os.Open(fpath)
-		if err != nil {
-			return nil, err
-		}
-		defer jsonFile.Close()
-
-		readInput, _ := ioutil.ReadAll(jsonFile)
-		byteValue = readInput
+		byteValue = stdout
 	}
 
 	var result map[string]Group
-	json.Unmarshal([]byte(byteValue), &result)
+	err := json.Unmarshal([]byte(byteValue), &result)
+
+	if err != nil {
+		return nil, err
+	}
+
+	keys := make([]string, 0, len(result))
+	for key := range result {
+		keys = append(keys, key)
+	}
 
 	return result, nil
 }
@@ -84,6 +83,8 @@ func TestDependency(carpfile map[string]Group, tgt Dependency) DependencyResult 
 		return TestCarpGroupDependency(carpfile, tgt)
 	case id == "core/snap":
 		return TestSnapDependency(tgt)
+	case id == "core/command":
+		return TestCommand(tgt)
 	default:
 		return DependencyResult{
 			Met:    false,

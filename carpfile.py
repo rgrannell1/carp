@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
 import sys
@@ -9,44 +9,49 @@ home = str(Path.home())
 
 def depend_file(path):
   return {
-    "type": "core/file",
+    "id": "core/file",
     "path": path
   }
 
 def depend_apt(name):
   return {
-    "type": "core/apt",
+    "id": "core/apt",
     "name": name
   }
 
 def depend_folder(path):
   return {
-    "type": "core/folder",
+    "id": "core/folder",
     "path": path
   }
 
 def depend_envvar(name, value):
   return {
-    "type": "core/envvar",
+    "id": "core/envvar",
     "name": "SHELL",
     "value": value
   }
 
 def depend_carpgroup(name):
   return {
-    "type": "core/carpgroup",
+    "id": "core/carpgroup",
     "name": name
   }
 
 def depend_snap(name):
   return {
-    "type": "core/snap",
+    "id": "core/snap",
     "name": name
+  }
+
+def depend_command(name):
+  return {
+      "id": "core/command",
+      "name": name
   }
 
 def list_dependencies():
   return {
-    "groups": {
       "vars": {
         "requires": [
            depend_envvar("SHELL", "/usr/bin/zsh"),
@@ -80,6 +85,11 @@ def list_dependencies():
           depend_apt("python-pip3")
         ]
       },
+      "npmRepos": {
+        "requires": [
+          depend_command("emoji")
+        ]
+      },
       "snapRepos": {
         "requires": [
           depend_snap("audacity"),
@@ -106,11 +116,10 @@ def list_dependencies():
           depend_carpgroup("snapRepos")
         ]
       }
-    }
   }
 
 def main():
   deps = list_dependencies()
-  print(json.dumps(deps, indent=2), file=sys.stdout)
+  print(json.dumps(deps, indent=2))
 
 main()

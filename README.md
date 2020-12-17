@@ -109,6 +109,18 @@ A snap-package dependency.
   "name": "kale"
 }
 ```
+
+### "core/command"
+
+A snap-package dependency.
+
+```json
+{
+  "type": "core/command",
+  "name": "emoji"
+}
+```
+
 ### License
 
 The MIT License
