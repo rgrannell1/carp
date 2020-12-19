@@ -84,11 +84,39 @@ func TestCarpGroupDependency(carpfile map[string]Group, tgt Dependency) Dependen
 	}
 }
 
+var cachedAptPackages []string = nil
+
 // TestAptDependency checks
 func TestAptDependency(tgt Dependency) DependencyResult {
+	var packages []string = nil
+
+	if cachedAptPackages == nil {
+		var err error = nil
+		packages, err = ListAptPackages()
+		cachedAptPackages = packages
+
+		if err != nil {
+			return DependencyResult{
+				Met:    false,
+				Reason: []string{"failed to list apt packages."},
+			}
+		}
+	}
+
+	cachedPackages = packages
+
+	for _, name := range packages {
+		if name == tgt["name"] {
+			return DependencyResult{
+				Met:    true,
+				Reason: []string{"snap package \"" + tgt["name"] + "\" installed"},
+			}
+		}
+	}
+
 	return DependencyResult{
-		Met:    true,
-		Reason: []string{"unimplemented."},
+		Met:    false,
+		Reason: []string{tgt["name"] + " not in listed apt-packages"},
 	}
 }
 

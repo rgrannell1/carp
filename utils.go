@@ -46,3 +46,24 @@ func ListSnapPackages() ([]string, error) {
 
 	return installed, nil
 }
+
+func ListAptPackages() ([]string, error) {
+	cmd := exec.Command("apt", "list")
+	stdout, err := cmd.Output()
+
+	if err != nil {
+		return nil, err
+	}
+
+	output := strings.Split(string(stdout), "\n")
+	installed := []string{}
+
+	for ith, val := range output {
+		if ith > 0 {
+			parts := strings.Split(val, "/")
+			installed = append(installed, parts[0])
+		}
+	}
+
+	return installed, nil
+}
