@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"strings"
 	"syscall"
 )
 
@@ -122,27 +121,6 @@ func TestFolderDependency(tgt Dependency) DependencyResult {
 	}
 }
 
-func listSnapPackages() ([]string, error) {
-	cmd := exec.Command("snap", "list")
-	stdout, err := cmd.Output()
-
-	if err != nil {
-		return nil, err
-	}
-
-	output := strings.Split(string(stdout), "\n")
-	installed := []string{}
-
-	for ith, val := range output {
-		if ith > 0 {
-			parts := strings.Split(val, " ")
-			installed = append(installed, parts[0])
-		}
-	}
-
-	return installed, nil
-}
-
 var cachedPackages []string = nil
 
 // TestSnapDependency checks
@@ -151,7 +129,7 @@ func TestSnapDependency(tgt Dependency) DependencyResult {
 
 	if cachedPackages == nil {
 		var err error = nil
-		packages, err = listSnapPackages()
+		packages, err = ListSnapPackages()
 
 		if err != nil {
 			return DependencyResult{
