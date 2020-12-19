@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -166,10 +165,8 @@ func TestSnapDependency(tgt Dependency) DependencyResult {
 		}
 	}
 
-	fmt.Println(packages)
-
 	return DependencyResult{
-		Met:    true,
+		Met:    false,
 		Reason: []string{tgt["name"] + " not in listed snap-packages"},
 	}
 }
