@@ -112,7 +112,7 @@ A snap-package dependency.
 
 ### "core/command"
 
-A snap-package dependency.
+A command dependency.
 
 ```json
 {
