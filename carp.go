@@ -101,30 +101,9 @@ func statusLabel(res DependencyResult) string {
 	return ansi.Color("[FAILED]", "red")
 }
 
-func Indent(content string, count int) string {
-	lines := strings.Split(content, "\n")
-	padded := make([]string, len(lines))
-
-	for ith, line := range lines {
-		padded[ith] = strings.Repeat(" ", count) + line
-	}
-
-	return strings.Join(padded, "\n")
-}
-
-func IndentList(lines []string, count int) []string {
-	padded := make([]string, len(lines))
-
-	for ith, line := range lines {
-		padded[ith] = strings.Repeat(" ", count) + line
-	}
-
-	return padded
-}
-
-func summariseResult(requiresStatus chan DependencyResult) (bool, []string) {
+func summariseResult(groupName string, requiresStatus chan DependencyResult) (bool, []string) {
 	allMet := true
-	message := []string{}
+	message := []string{"groups." + groupName}
 
 	for elem := range requiresStatus {
 		allMet = allMet && elem.Met
@@ -140,7 +119,8 @@ func summariseResult(requiresStatus chan DependencyResult) (bool, []string) {
 }
 
 // TestGroup checks a groups subdependencies in parallel
-func TestGroup(carpfile map[string]Group, deps []Dependency) DependencyResult {
+func TestGroup(carpfile map[string]Group, groupName string) DependencyResult {
+	deps := carpfile[groupName].Requires
 	requiresStatus := make(chan DependencyResult, len(deps))
 
 	if len(deps) == 0 {
@@ -163,7 +143,7 @@ func TestGroup(carpfile map[string]Group, deps []Dependency) DependencyResult {
 	wg.Wait()
 	close(requiresStatus)
 
-	allMet, summary := summariseResult(requiresStatus)
+	allMet, summary := summariseResult(groupName, requiresStatus)
 
 	return DependencyResult{
 		Met:    allMet,
@@ -179,9 +159,7 @@ func Carp(args CarpArgs) error {
 		return err
 	}
 
-	tgt := carpfile[args.group]
-
-	groupResult := TestGroup(carpfile, tgt.Requires)
+	groupResult := TestGroup(carpfile, args.group)
 
 	fmt.Println(groupResult.Reason[0])
 

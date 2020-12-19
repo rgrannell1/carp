@@ -77,9 +77,7 @@ func TestCarpGroupDependency(carpfile map[string]Group, tgt Dependency) Dependen
 		}
 	}
 
-	group := carpfile[tgt["name"]]
-
-	depResult := TestGroup(carpfile, group.Requires)
+	depResult := TestGroup(carpfile, tgt["name"])
 
 	return DependencyResult{
 		Met:    depResult.Met,
