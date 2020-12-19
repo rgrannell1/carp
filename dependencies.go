@@ -143,16 +143,25 @@ func listSnapPackages() ([]string, error) {
 	return installed, nil
 }
 
+var cachedPackages []string = nil
+
 // TestSnapDependency checks
 func TestSnapDependency(tgt Dependency) DependencyResult {
-	packages, err := listSnapPackages()
+	var packages []string = nil
 
-	if err != nil {
-		return DependencyResult{
-			Met:    false,
-			Reason: []string{"failed to list snap packages."},
+	if cachedPackages == nil {
+		var err error = nil
+		packages, err = listSnapPackages()
+
+		if err != nil {
+			return DependencyResult{
+				Met:    false,
+				Reason: []string{"failed to list snap packages."},
+			}
 		}
 	}
+
+	cachedPackages = packages
 
 	for _, name := range packages {
 		if name == tgt["name"] {
