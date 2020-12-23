@@ -9,6 +9,18 @@ carp is a simple dependency-checker that checks a host matches the expected conf
 carp --file <fpath>
 ```
 
+## Stability Index
+
+1, Experimental - This project might die, it's undertested and underdocumented, and redesigns and breaking changes are likely
+
+## Files
+
+```
+carp.go
+cli.go
+dependencies.go
+```
+
 ## Carpfile
 
 Dependencies are specified in a JSON file with the following format. This file is cumbersome to write directly, so I'd recommend creating a Python or SH executable file that echos the required JSON.
