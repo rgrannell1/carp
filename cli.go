@@ -15,7 +15,7 @@ type CarpArgs struct {
 func main() {
 	usage := `Carp
 Usage:
-	carp --file <path> [--group <name>]
+	carp <path> [--group <name>]
 
 Description:
 	Carp is a simple dependency-checker that checks a host matches the expected configuration. Dependencies are specified

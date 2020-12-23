@@ -1,7 +1,7 @@
 
 # carp 🐟
 
-carp is a simple dependency-checker that checks a host matches the expected configuration.
+carp is a simple dependency-checker that checks a host matches the expected configuration. It performs dependency-checks in parallel, so it's very fast.
 
 ## Usage
 
@@ -15,24 +15,22 @@ Dependencies are specified in a JSON file with the following format. This file i
 
 ```
 {
-  "groups": {
-    // -- you can choose any group-names, but by default "main" is expected.
-    "variables": {
-      "requires": [
-        /// -- list of variable dependencies
-      ]
-    },
-    programs: {
-      "requires": [
-        // -- list of program dependencies
-      ]
-    },
-    main: {
-      requires: [
-        // -- by default, the main group is checked. Depend on
-        // -- other groups to organise dependencies tidily.
-      ]
-    }
+  // -- you can choose any group-names, but by default "main" is expected.
+  "variables": {
+    "requires": [
+      /// -- list of variable dependencies
+    ]
+  },
+  programs: {
+    "requires": [
+      // -- list of program dependencies
+    ]
+  },
+  main: {
+    requires: [
+      // -- by default, the main group is checked. Depend on
+      // -- other groups to organise dependencies tidily.
+    ]
   }
 }
 ```
