@@ -71,10 +71,11 @@ Options:
 		log.Fatal(err)
 	}
 
-	group, err := opts.String("--group")
+	group := ""
+	group, err = opts.String("--group")
 
 	if err != nil {
-		log.Fatal(err)
+		group = "main"
 	}
 
 	carpErr := Carp(CarpArgs{file, group})
