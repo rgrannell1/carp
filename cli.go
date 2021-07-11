@@ -6,12 +6,6 @@ import (
 	"github.com/docopt/docopt-go"
 )
 
-// CarpArgs specifies CLI arguments
-type CarpArgs struct {
-	fpath string
-	group string
-}
-
 func main() {
 	usage := `Carp
 Usage:
