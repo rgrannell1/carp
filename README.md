@@ -15,8 +15,16 @@ carp --file <fpath>
 
 ## Build
 
+To test carp, run:
+
 ```bash
 go run *.go $HOME/carpfile.py --group main
+```
+
+To install carp, run:
+
+```bash
+cp carp /usr/bin/carp
 ```
 
 ## Files
