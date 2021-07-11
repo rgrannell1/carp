@@ -13,6 +13,12 @@ carp --file <fpath>
 
 1, Experimental - This project might die, it's undertested and underdocumented, and redesigns and breaking changes are likely
 
+## Build
+
+```bash
+go run *.go $HOME/carpfile.py --group main
+```
+
 ## Files
 
 ```

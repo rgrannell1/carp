@@ -5,18 +5,11 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
-	"sync"
-
-	"github.com/mgutz/ansi"
 )
 
-// Dependency is a map specifying dependency data
-type Dependency map[string]string
-
-// Group defines a logically coherant group of dependencies
-type Group struct {
-	Requires []Dependency `json:"requires"`
+type CarpArgs struct {
+	fpath string
+	group string
 }
 
 // IsExecAny detects if the file is executable by the current user
@@ -54,101 +47,7 @@ func readCarpFile(fpath string) (map[string]Group, error) {
 		return nil, err
 	}
 
-	keys := make([]string, 0, len(result))
-	for key := range result {
-		keys = append(keys, key)
-	}
-
 	return result, nil
-}
-
-// DependencyResult s
-type DependencyResult struct {
-	Met    bool
-	Reason []string
-}
-
-// TestDependency checks one dependency (or a carp-group) resolves as expected
-func TestDependency(carpfile map[string]Group, tgt Dependency) DependencyResult {
-	switch id := tgt["id"]; {
-	case id == "core/file":
-		return TestFileDependency(tgt)
-	case id == "core/apt":
-		return TestAptDependency(tgt)
-	case id == "core/folder":
-		return TestFolderDependency(tgt)
-	case id == "core/envvar":
-		return TestEnvVarDependency(tgt)
-	case id == "core/carpgroup":
-		return TestCarpGroupDependency(carpfile, tgt)
-	case id == "core/snap":
-		return TestSnapDependency(tgt)
-	case id == "core/command":
-		return TestCommand(tgt)
-	default:
-		return DependencyResult{
-			Met:    false,
-			Reason: []string{"invalid dependency."},
-		}
-	}
-}
-
-func statusLabel(res DependencyResult) string {
-	if res.Met {
-		return ansi.Color("[MET]", "green")
-	}
-
-	return ansi.Color("[FAILED]", "red")
-}
-
-func summariseResult(groupName string, requiresStatus chan DependencyResult) (bool, []string) {
-	allMet := true
-	message := []string{"groups." + groupName}
-
-	for elem := range requiresStatus {
-		allMet = allMet && elem.Met
-
-		dependencySummary := statusLabel(elem) + " " + strings.Join(elem.Reason, "\n")
-
-		message = append(message, dependencySummary)
-	}
-
-	padded := Indent("\n"+strings.Join(message, "\n"), 2)
-
-	return allMet, []string{padded}
-}
-
-// TestGroup checks a groups subdependencies in parallel
-func TestGroup(carpfile map[string]Group, groupName string) DependencyResult {
-	deps := carpfile[groupName].Requires
-	requiresStatus := make(chan DependencyResult, len(deps))
-
-	if len(deps) == 0 {
-		return DependencyResult{
-			Met:    true,
-			Reason: []string{"no dependencies provided."},
-		}
-	}
-
-	var wg sync.WaitGroup
-	wg.Add(len(deps))
-
-	for _, val := range deps {
-		go func(val Dependency) {
-			defer wg.Done()
-			requiresStatus <- TestDependency(carpfile, val)
-		}(val)
-	}
-
-	wg.Wait()
-	close(requiresStatus)
-
-	allMet, summary := summariseResult(groupName, requiresStatus)
-
-	return DependencyResult{
-		Met:    allMet,
-		Reason: summary,
-	}
 }
 
 // Carp runs the core application
@@ -159,14 +58,14 @@ func Carp(args CarpArgs) error {
 		return err
 	}
 
-	groupResult := TestGroup(carpfile, args.group)
+	met, summary := testGroup(carpfile, args.group)
 
-	fmt.Println(groupResult.Reason[0])
+	fmt.Println(summary)
 
-	if groupResult.Met == false {
-		os.Exit(1)
-	} else {
+	if met {
 		os.Exit(0)
+	} else {
+		os.Exit(1)
 	}
 
 	return nil
