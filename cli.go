@@ -53,6 +53,19 @@ Description:
 
 	Writing JSON by hand can be repetitious, so carp can also read stdout if it's provided an executable file that prints JSON.
 
+Services:
+
+  id-property   |  properties
+  --------------------------------
+  core/service     { name: <str> }
+	core/file        { path: <str> }
+	core/apt         { name: <str> }
+	core/folder      { path: <str> }
+	core/envvar      { name: <str>, value: <str> }
+	core/carpgroup   { <group>: requires[ <dependency> ] }
+	core/snap        { name: <str> }
+	core/command     { name: <str> }
+
 Options:
 	--group <name>    the group to test [default: main]
 	--file <path>     the path of the carpfile

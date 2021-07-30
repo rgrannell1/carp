@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os/exec"
 )
 
@@ -15,13 +14,8 @@ func TestServiceDependency(tgt Dependency) (bool, []string) {
 		return false, []string{"systemctl"}
 	}
 
-	stdout, err := cmd.Output()
-
-	fmt.Println(stdout)
-	fmt.Println(stdout)
-	fmt.Println(stdout)
-	fmt.Println(stdout)
-	fmt.Println(stdout)
+	_, err := cmd.Output()
+	// -- TODO
 
 	if err != nil {
 		return false, []string{"systemctl"}
