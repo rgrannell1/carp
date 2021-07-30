@@ -1,7 +1,10 @@
 package main
 
+// Checks a dependency
 func TestDependency(carpfile map[string]Group, tgt Dependency) (bool, []string) {
 	switch id := tgt["id"]; {
+	case id == "core/service":
+		return TestServiceDependency(tgt)
 	case id == "core/file":
 		return TestFileDependency(tgt)
 	case id == "core/apt":
