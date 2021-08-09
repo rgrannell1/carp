@@ -27,23 +27,15 @@ func listAptPackages() ([]string, error) {
 	return installed, nil
 }
 
-var cachedAptPackages []string = nil
+// -- broken cache
 
 // Checks that an apt dependency is present.
 func TestAptDependency(tgt Dependency) (bool, []string) {
-	var packages []string = nil
+	packages, err := listAptPackages()
 
-	// retrieve & cache apt packages
-	if cachedAptPackages == nil {
-		packages, err := listAptPackages()
-		cachedAptPackages = packages
-
-		if err != nil {
-			return false, []string{"failed to list apt packages"}
-		}
+	if err != nil {
+		return false, []string{"failed to list apt packages"}
 	}
-
-	cachedPackages = packages
 
 	for _, name := range packages {
 		if name == tgt["name"] {
