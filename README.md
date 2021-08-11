@@ -37,28 +37,144 @@ dependencies.go
 
 ## Carpfile
 
-Dependencies are specified in a JSON file with the following format. This file is cumbersome to write directly, so I'd recommend creating a Python or SH executable file that echos the required JSON.
+Dependencies are specified in a JSON file with the format below. This file is cumbersome to write directly, so I'd recommend creating a Python or SH executable file that echos the required JSON.
+
+Multiple machines can be configured by creating seperate carp groups; one for a laptop and one for a devbox in this case.
 
 ```
 {
-  // -- you can choose any group-names, but by default "main" is expected.
-  "variables": {
+  "vars": {
+    "requires": []
+  },
+  "gui": {
     "requires": [
-      /// -- list of variable dependencies
+      {
+        "id": "core/file",
+        "path": "/home/rg/.config/autostart/guake.desktop"
+      }
     ]
   },
-  programs: {
+  "dotfiles": {
     "requires": [
-      // -- list of program dependencies
+      {
+        "id": "core/file",
+        "path": "/home/rg/.zshrc"
+      }
     ]
   },
-  main: {
-    requires: [
-      // -- by default, the main group is checked. Depend on
-      // -- other groups to organise dependencies tidily.
+  "desktopFolders": {
+    "requires": [
+      {
+        "id": "core/folder",
+        "path": "/home/rg/Code"
+      }
+    ]
+  },
+  "files": {
+    "requires": []
+  },
+  "aptRepos": {
+    "requires": [
+      {
+        "id": "core/apt",
+        "name": "build-essential"
+      }
+    ]
+  },
+  "uiAptRepos": {
+    "requires": [
+      {
+        "id": "core/apt",
+        "name": "ulauncher"
+      }
+    ]
+  },
+  "snapRepos": {
+    "requires": [
+      {
+        "id": "core/snap",
+        "name": "bashtop"
+      }
+    ]
+  },
+  "uiSnapRepos": {
+    "requires": [
+      {
+        "id": "core/snap",
+        "name": "chromium"
+      }
+    ]
+  },
+  "commands": {
+    "requires": [
+      {
+        "id": "core/command",
+        "name": "zoxide"
+      }
+    ]
+  },
+  "shared": {
+    "requires": [
+      {
+        "id": "core/carpgroup",
+        "name": "vars"
+      },
+      {
+        "id": "core/carpgroup",
+        "name": "commands"
+      },
+      {
+        "id": "core/carpgroup",
+        "name": "dotfiles"
+      },
+      {
+        "id": "core/carpgroup",
+        "name": "files"
+      },
+      {
+        "id": "core/carpgroup",
+        "name": "snapRepos"
+      },
+      {
+        "id": "core/carpgroup",
+        "name": "aptRepos"
+      }
+    ]
+  },
+  "laptop": {
+    "requires": [
+      {
+        "id": "core/carpgroup",
+        "name": "gui"
+      },
+      {
+        "id": "core/carpgroup",
+        "name": "shared"
+      },
+      {
+        "id": "core/carpgroup",
+        "name": "desktopFolders"
+      },
+      {
+        "id": "core/carpgroup",
+        "name": "uiSnapRepos"
+      },
+      {
+        "id": "core/carpgroup",
+        "name": "uiAptRepos"
+      }
+    ]
+  },
+  "devbox": {
+    "requires": [
+      {
+        "id": "core/carpgroup",
+        "name": "shared"
+      }
     ]
   }
 }
+
 ```
 
 ## Dependencies
