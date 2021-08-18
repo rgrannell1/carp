@@ -60,7 +60,9 @@ func Carp(args CarpArgs) error {
 
 	met, summary := testGroup(carpfile, args.group)
 
-	fmt.Println(summary)
+	if len(summary) > 0 {
+		fmt.Println(summary[0])
+	}
 
 	if met {
 		os.Exit(0)
