@@ -1,7 +1,7 @@
 package main
 
 // Checks a dependency
-func TestDependency(carpfile map[string]Group, tgt Dependency) (bool, []string) {
+func TestDependency(carpfile CarpFile, tgt Dependency) (bool, []string) {
 	switch id := tgt["id"]; {
 	case id == "core/service":
 		return TestServiceDependency(tgt)

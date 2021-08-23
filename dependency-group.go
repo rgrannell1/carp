@@ -59,8 +59,8 @@ func aggregateStatus(group string, requirements chan DependencyResult) (bool, []
 }
 
 // Check whether all dependencies for a group hold.
-func testGroup(carpfile map[string]Group, group string) (bool, []string) {
-	deps := carpfile[group].Requires
+func testGroup(carpfile CarpFile, group string) (bool, []string) {
+	deps := carpfile.entries[group].Requires
 	requirements := make(chan DependencyResult, len(deps))
 
 	if len(deps) == 0 {
@@ -89,7 +89,7 @@ func testGroup(carpfile map[string]Group, group string) (bool, []string) {
 }
 
 // Test that all of the dependencies
-func TestCarpGroupDependency(carpfile map[string]Group, tgt Dependency) (bool, []string) {
+func TestCarpGroupDependency(carpfile CarpFile, tgt Dependency) (bool, []string) {
 	if tgt["name"] == "" {
 		return false, []string{"group name not provided"}
 	}
