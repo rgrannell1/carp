@@ -1,22 +1,22 @@
 package main
 
 // Checks a dependency
-func TestDependency(carpfile CarpFile, tgt Dependency) (bool, []string) {
+func TestDependency(facts *SystemFacts, carpfile CarpFile, tgt Dependency) (bool, []string) {
 	switch id := tgt["id"]; {
 	case id == "core/service":
 		return TestServiceDependency(tgt)
 	case id == "core/file":
 		return TestFileDependency(tgt)
 	case id == "core/apt":
-		return TestAptDependency(tgt)
+		return TestAptDependency(facts, tgt)
 	case id == "core/folder":
 		return TestFolderDependency(tgt)
 	case id == "core/envvar":
 		return TestEnvVarDependency(tgt)
 	case id == "core/carpgroup":
-		return TestCarpGroupDependency(carpfile, tgt)
+		return TestCarpGroupDependency(facts, carpfile, tgt)
 	case id == "core/snap":
-		return TestSnapDependency(tgt)
+		return TestSnapDependency(facts, tgt)
 	case id == "core/command":
 		return TestCommand(tgt)
 	default:

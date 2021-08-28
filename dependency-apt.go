@@ -6,7 +6,7 @@ import (
 )
 
 // List apt packages on the system
-func listAptPackages() ([]string, error) {
+func ListAptPackages() ([]string, error) {
 	cmd := exec.Command("apt", "list")
 	stdout, err := cmd.Output()
 
@@ -30,14 +30,8 @@ func listAptPackages() ([]string, error) {
 // -- broken cache
 
 // Checks that an apt dependency is present.
-func TestAptDependency(tgt Dependency) (bool, []string) {
-	packages, err := listAptPackages()
-
-	if err != nil {
-		return false, []string{"failed to list apt packages"}
-	}
-
-	for _, name := range packages {
+func TestAptDependency(facts *SystemFacts, tgt Dependency) (bool, []string) {
+	for _, name := range facts.AptPackages {
 		if name == tgt["name"] {
 			return true, []string{"snap package \"" + tgt["name"] + "\" installed"}
 		}

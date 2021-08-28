@@ -58,6 +58,32 @@ func ReadCarpFile(fpath string) (CarpFile, error) {
 	return result, nil
 }
 
+type SystemFacts struct {
+	AptPackages  []string
+	SnapPackages []string
+}
+
+func (carpfile *CarpFile) RetrieveFacts() (SystemFacts, error) {
+	// lets be lazy, and load everything once rather than inspecting which dependencies are used.
+
+	aptPackages, err := ListAptPackages()
+
+	if err != nil {
+		return SystemFacts{}, err
+	}
+
+	snapPackages, err := ListSnapPackages()
+
+	if err != nil {
+		return SystemFacts{}, err
+	}
+
+	return SystemFacts{
+		aptPackages,
+		snapPackages,
+	}, nil
+}
+
 // Carp runs the core application
 func Carp(args CarpArgs) error {
 	carpfile, err := ReadCarpFile(args.fpath)
@@ -67,8 +93,15 @@ func Carp(args CarpArgs) error {
 		os.Exit(1)
 	}
 
+	facts, err := carpfile.RetrieveFacts()
+
+	if err != nil {
+		fmt.Printf("CARP: failed to read system facts. %v\n", err)
+		os.Exit(1)
+	}
+
 	// Test some group, it's up to the user to wire everything into this group
-	met, summary := testGroup(carpfile, args.group)
+	met, summary := testGroup(&facts, carpfile, args.group)
 
 	if len(summary) > 0 {
 		fmt.Println(summary[0])

@@ -59,7 +59,7 @@ func aggregateStatus(group string, requirements chan DependencyResult) (bool, []
 }
 
 // Check whether all dependencies for a group hold.
-func testGroup(carpfile CarpFile, group string) (bool, []string) {
+func testGroup(facts *SystemFacts, carpfile CarpFile, group string) (bool, []string) {
 	deps := carpfile.entries[group].Requires
 	requirements := make(chan DependencyResult, len(deps))
 
@@ -73,7 +73,7 @@ func testGroup(carpfile CarpFile, group string) (bool, []string) {
 	for _, val := range deps {
 		go func(val Dependency) {
 			defer wg.Done()
-			met, reason := TestDependency(carpfile, val)
+			met, reason := TestDependency(facts, carpfile, val)
 
 			requirements <- DependencyResult{
 				Met:    met,
@@ -89,12 +89,12 @@ func testGroup(carpfile CarpFile, group string) (bool, []string) {
 }
 
 // Test that all of the dependencies
-func TestCarpGroupDependency(carpfile CarpFile, tgt Dependency) (bool, []string) {
+func TestCarpGroupDependency(facts *SystemFacts, carpfile CarpFile, tgt Dependency) (bool, []string) {
 	if tgt["name"] == "" {
 		return false, []string{"group name not provided"}
 	}
 
-	result, reasons := testGroup(carpfile, tgt["name"])
+	result, reasons := testGroup(facts, carpfile, tgt["name"])
 
 	return result, indentList(reasons, 2)
 }

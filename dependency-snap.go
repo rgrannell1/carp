@@ -6,7 +6,7 @@ import (
 )
 
 // List all installed snap packages
-func listSnapPackages() ([]string, error) {
+func ListSnapPackages() ([]string, error) {
 	cmd := exec.Command("snap", "list")
 	stdout, err := cmd.Output()
 
@@ -28,23 +28,9 @@ func listSnapPackages() ([]string, error) {
 	return installed, nil
 }
 
-var cachedPackages []string = nil
-
 // Test whether a snap package is installed on this system.
-func TestSnapDependency(tgt Dependency) (bool, []string) {
-
-	// memoise snap-packages to keep things fast
-	if cachedPackages == nil {
-		packages, err := listSnapPackages()
-
-		if err != nil {
-			return false, []string{"failed to list snap packages"}
-		}
-
-		cachedPackages = packages
-	}
-
-	for _, name := range cachedPackages {
+func TestSnapDependency(facts *SystemFacts, tgt Dependency) (bool, []string) {
+	for _, name := range facts.SnapPackages {
 		if name == tgt["name"] {
 			return true, []string{"snap package \"" + tgt["name"] + "\" installed"}
 		}
