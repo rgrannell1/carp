@@ -6,33 +6,26 @@ carp is a simple dependency-checker that checks a host matches the expected conf
 ## Usage
 
 ```zsh
-carp --file <fpath>
+carp --file <fpath> --group <string>
 ```
 
 ## Stability Index
 
-1, Experimental - This project might die, it's undertested and underdocumented, and redesigns and breaking changes are likely
+2, Evolving - This project is healthy, but might lack testing or documentation or it is prone to breaking changes
 
 ## Build
 
-To test carp, run:
-
-```bash
-go run *.go $HOME/carpfile.py --group main
-```
-
-To install carp, run:
-
-```bash
-cp carp /usr/bin/carp
-```
-
-## Files
+Uses the [bs](https://github.com/labaneilers/bs) build-system.
 
 ```
-carp.go
-cli.go
-dependencies.go
+bs install    # install to /usr/bin
+```
+
+## Installation
+
+```
+git clone https://github.com/rgrannell1/carp.git ~/.carp
+~/.carp/bs/install.sh
 ```
 
 ## Carpfile
